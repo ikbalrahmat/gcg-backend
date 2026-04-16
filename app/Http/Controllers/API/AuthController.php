@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\AuditLog;
 use App\Models\PasswordHistory; // 🆕 WAJIB IMPORT INI
+use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
@@ -18,8 +19,22 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'password' => 'required'
+            'password' => 'required',
+            'captcha_token' => 'required'
         ]);
+
+        // Verifikasi Google reCAPTCHA
+        $recaptchaResponse = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => env('RECAPTCHA_SECRET_KEY'),
+            'response' => $request->captcha_token,
+            'remoteip' => $request->ip()
+        ]);
+
+        if (!$recaptchaResponse->json('success')) {
+            return response()->json([
+                'message' => 'Verifikasi reCAPTCHA gagal. Harap coba lagi.'
+            ], 422);
+        }
 
         $throttleKey = Str::transliterate(Str::lower($request->input('email')).'|'.$request->ip());
 

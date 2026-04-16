@@ -23,7 +23,14 @@ class FileMonitoringController extends Controller
                 return response()->json(['message' => 'File tidak terdeteksi. Pastikan ukuran file tidak melebihi limit server.'], 400);
             }
 
-            $request->validate(['file' => 'required|file', 'id' => 'required']);
+            // Validasi ketat keamanan (Security Requirement #26)
+            $request->validate([
+                'file' => 'required|file|mimes:pdf,xls,xlsx|max:10240',
+                'id' => 'required'
+            ], [
+                'file.mimes' => 'Format file tidak diizinkan! Hanya menerima dokumen PDF atau Excel.',
+                'file.max'   => 'Gagal upload: Ukuran file maksimal 10MB dari sisi Server.'
+            ]);
 
             $file = $request->file('file');
             $path = $file->store('evidences', 'public');
@@ -174,6 +181,14 @@ class FileMonitoringController extends Controller
         $tl->status = $request->status;
 
         if ($request->hasFile('file')) {
+            // Validasi ketat keamanan (Security Requirement #26)
+            $request->validate([
+                'file' => 'file|mimes:pdf,xls,xlsx|max:10240'
+            ], [
+                'file.mimes' => 'Format file TL tidak diizinkan! Hanya menerima dokumen PDF atau Excel.',
+                'file.max'   => 'Gagal upload TL: Ukuran file maksimal 10MB dari sisi Server.'
+            ]);
+
             $file = $request->file('file');
             if ($tl->file_path) Storage::disk('public')->delete($tl->file_path);
             $tl->file_path = $file->store('tl_evidences', 'public');
