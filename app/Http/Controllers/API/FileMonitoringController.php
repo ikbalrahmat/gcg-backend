@@ -62,6 +62,13 @@ class FileMonitoringController extends Controller
 
     public function deleteEvidence($id) {
         $evidence = Evidence::findOrFail($id);
+        
+        // Hapus Tagihan otomatis jika auditor menghapus dokumen lewat layar Kertas Kerja
+        DocumentRequest::where('assessment_id', $evidence->assessment_id)
+            ->where('factor_id', $evidence->factor_id)
+            ->where('target_divisi', $evidence->divisi)
+            ->delete();
+
         if ($evidence->file_path) {
             Storage::disk('public')->delete($evidence->file_path);
         }
@@ -143,7 +150,7 @@ class FileMonitoringController extends Controller
         $req = DocumentRequest::create([
             'id' => $request->id, 'assessment_id' => $request->assessmentId, 'assessment_year' => $request->assessmentYear,
             'aspect_id' => $request->aspectId, 'indicator_id' => $request->indicatorId, 'parameter_id' => $request->parameterId,
-            'parameter_name' => $request->parameterName, 'target_divisi' => $request->targetDivisi,
+            'factor_id' => $request->factorId, 'parameter_name' => $request->parameterName, 'target_divisi' => $request->targetDivisi,
             'requested_by' => $request->requestedBy, 'request_date' => $request->requestDate, 'status' => 'Requested', 'note' => $request->note
         ]);
         return response()->json(['message' => 'Request Created', 'request' => $this->formatRequest($req)]);
@@ -165,7 +172,7 @@ class FileMonitoringController extends Controller
         return [
             'id' => $r->id, 'assessmentId' => $r->assessment_id, 'assessmentYear' => $r->assessment_year,
             'aspectId' => $r->aspect_id, 'indicatorId' => $r->indicator_id, 'parameterId' => $r->parameter_id,
-            'parameterName' => $r->parameter_name, 'targetDivisi' => $r->target_divisi,
+            'factorId' => $r->factor_id, 'parameterName' => $r->parameter_name, 'targetDivisi' => $r->target_divisi,
             'requestedBy' => $r->requested_by, 'requestDate' => $r->request_date, 'status' => $r->status, 'note' => $r->note
         ];
     }
