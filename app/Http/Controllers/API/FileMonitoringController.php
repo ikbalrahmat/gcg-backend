@@ -155,6 +155,12 @@ class FileMonitoringController extends Controller
         return response()->json(['message' => 'Request Updated']);
     }
 
+    public function deleteDocumentRequest($id) {
+        $req = DocumentRequest::findOrFail($id);
+        $req->delete();
+        return response()->json(['message' => 'Request Deleted']);
+    }
+
     private function formatRequest($r) {
         return [
             'id' => $r->id, 'assessmentId' => $r->assessment_id, 'assessmentYear' => $r->assessment_year,

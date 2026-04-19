@@ -61,6 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/document-requests', [FileMonitoringController::class, 'getDocumentRequests']);
     Route::post('/document-requests', [FileMonitoringController::class, 'createDocumentRequest']);
     Route::put('/document-requests/{id}', [FileMonitoringController::class, 'updateDocumentRequest']);
+    Route::delete('/document-requests/{id}', [FileMonitoringController::class, 'deleteDocumentRequest']);
 
     Route::get('/tl-records', [FileMonitoringController::class, 'getTlRecords']);
     Route::post('/tl-records/{id}', [FileMonitoringController::class, 'upsertTlRecord']);
