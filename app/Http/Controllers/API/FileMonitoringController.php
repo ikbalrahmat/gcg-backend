@@ -45,6 +45,7 @@ class FileMonitoringController extends Controller
                 'aspect_id' => $request->aspectId,
                 'indicator_id' => $request->indicatorId,
                 'parameter_id' => $request->parameterId,
+                'factor_id' => $request->factorId,
                 'file_name' => $file->getClientOriginalName(),
                 'file_path' => $path,
                 'divisi' => $request->divisi,
@@ -77,7 +78,8 @@ class FileMonitoringController extends Controller
     private function formatEvidence($e) {
         return [
             'id' => $e->id, 'assessmentId' => $e->assessment_id, 'assessmentYear' => $e->assessment_year,
-            'aspectId' => $e->aspect_id, 'indicatorId' => $e->indicator_id, 'parameterId' => $e->parameter_id,
+            'aspectId' => $e->aspect_id, 'indicatorId' => $e->indicator_id, 
+            'parameterId' => $e->parameter_id, 'factorId' => $e->factor_id,
             'fileName' => $e->file_name, 'fileUrl' => asset('storage/' . $e->file_path),
             'divisi' => $e->divisi, 'uploadDate' => $e->upload_date, 'status' => $e->status
         ];
@@ -114,6 +116,7 @@ class FileMonitoringController extends Controller
                 'aspect_id' => $oldEvidence->aspect_id,
                 'indicator_id' => $oldEvidence->indicator_id,
                 'parameter_id' => $oldEvidence->parameter_id,
+                'factor_id' => $oldEvidence->factor_id,
                 'file_name' => $oldEvidence->file_name, // Nama file asli dipertahankan
                 'file_path' => $newPath,
                 'divisi' => 'Auditor (Disalin dari Arsip TB ' . $oldEvidence->assessment_year . ')',
