@@ -4,6 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Assessment;
+use App\Models\Evidence;
+use App\Models\DocumentRequest;
+use App\Models\TlRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -78,7 +81,21 @@ class AssessmentController extends Controller
     {
         $assessment = Assessment::findOrFail($id);
 
-        // Hapus juga file fisiknya dari storage jika assessment dihapus
+        // Hapus fisik file Evidence yang menumpang pada Assessment ini
+        $evidences = Evidence::where('assessment_id', $id)->get();
+        foreach ($evidences as $ev) {
+            if ($ev->file_path) {
+                $evPath = str_replace('/storage/', '', $ev->file_path);
+                Storage::disk('public')->delete($evPath);
+            }
+        }
+
+        // Hapus massal baris data turunannya
+        Evidence::where('assessment_id', $id)->delete();
+        DocumentRequest::where('assessment_id', $id)->delete();
+        TlRecord::where('assessment_id', $id)->delete();
+
+        // Hapus juga file fisiknya dari storage jika assessment (Final Report) dihapus
         if ($assessment->final_report_url) {
             $path = str_replace('/storage/', '', $assessment->final_report_url);
             Storage::disk('public')->delete($path);
