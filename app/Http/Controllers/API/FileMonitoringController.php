@@ -70,7 +70,11 @@ class FileMonitoringController extends Controller
             ->delete();
 
         if ($evidence->file_path) {
-            Storage::disk('public')->delete($evidence->file_path);
+            // Cek apakah ada record evidence lain yang merujuk ke file_path yang sama
+            $count = Evidence::where('file_path', $evidence->file_path)->count();
+            if ($count <= 1) {
+                Storage::disk('public')->delete($evidence->file_path);
+            }
         }
         $evidence->delete();
         return response()->json(['message' => 'File Deleted']);
@@ -133,6 +137,45 @@ class FileMonitoringController extends Controller
 
             return response()->json([
                 'message' => 'Berhasil menyalin dokumen dari arsip.',
+                'evidence' => $this->formatEvidence($newEvidence)
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Server Error: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function linkToFuk(Request $request, $id) {
+        $request->validate([
+            'newAspectId' => 'required',
+            'newIndicatorId' => 'required',
+            'newParameterId' => 'required',
+            'newFactorId' => 'required',
+            'newId' => 'required'
+        ]);
+
+        try {
+            // Cari dokumen sumber
+            $oldEvidence = Evidence::findOrFail($id);
+
+            // Buat record evidence baru dengan path file yang SAMA (tidak digandakan fisiknya)
+            $newEvidence = Evidence::create([
+                'id' => $request->newId,
+                'assessment_id' => $oldEvidence->assessment_id,
+                'assessment_year' => $oldEvidence->assessment_year,
+                'aspect_id' => $request->newAspectId,
+                'indicator_id' => $request->newIndicatorId,
+                'parameter_id' => $request->newParameterId,
+                'factor_id' => $request->newFactorId,
+                'file_name' => $oldEvidence->file_name,
+                'file_path' => $oldEvidence->file_path, // Referensi ke file fisik yang sama
+                'divisi' => $oldEvidence->divisi, // Mempertahankan divisi pengunggah asli
+                'upload_date' => now()->format('Y-m-d'),
+                'status' => 'Verified' // Langsung otomatis verified sesuai persetujuan
+            ]);
+
+            return response()->json([
+                'message' => 'Berhasil menyalin dokumen ke Kertas Kerja.',
                 'evidence' => $this->formatEvidence($newEvidence)
             ]);
 

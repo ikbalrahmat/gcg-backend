@@ -66,6 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/tl-records', [FileMonitoringController::class, 'getTlRecords']);
     Route::post('/tl-records/{id}', [FileMonitoringController::class, 'upsertTlRecord']);
     Route::post('/evidences/{id}/copy', [FileMonitoringController::class, 'copyArchiveEvidence']);
+    Route::post('/evidences/{id}/link-to-fuk', [FileMonitoringController::class, 'linkToFuk']);
 
     // Endpoint khusus untuk upload Laporan Final
     Route::post('/assessments/{id}/upload-report', [AssessmentController::class, 'uploadFinalReport']);
