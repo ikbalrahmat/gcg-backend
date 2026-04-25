@@ -229,6 +229,11 @@ class FileMonitoringController extends Controller
                 'fileUrl' => $t->file_path ? asset('storage/' . $t->file_path) : null,
                 'auditeeNote' => $t->auditee_note,
                 'auditorNote' => $t->auditor_note,
+                'rencanaTindakLanjut' => $t->rencanaTindakLanjut,
+                'linkEvidence' => $t->linkEvidence,
+                'areaPerbaikan' => $t->areaPerbaikan,
+                'hasilTindakLanjut' => $t->hasilTindakLanjut,
+                'realisasiTindakLanjut' => $t->realisasiTindakLanjut,
             ];
         });
         return response()->json($records);
@@ -256,6 +261,11 @@ class FileMonitoringController extends Controller
 
         if ($request->has('auditeeNote')) $tl->auditee_note = $request->auditeeNote;
         if ($request->has('auditorNote')) $tl->auditor_note = $request->auditorNote;
+        if ($request->has('rencanaTindakLanjut')) $tl->rencanaTindakLanjut = $request->rencanaTindakLanjut;
+        if ($request->has('linkEvidence')) $tl->linkEvidence = $request->linkEvidence;
+        if ($request->has('areaPerbaikan')) $tl->areaPerbaikan = $request->areaPerbaikan;
+        if ($request->has('hasilTindakLanjut')) $tl->hasilTindakLanjut = $request->hasilTindakLanjut;
+        if ($request->has('realisasiTindakLanjut')) $tl->realisasiTindakLanjut = $request->realisasiTindakLanjut;
 
         $tl->save();
         return response()->json(['message' => 'TL Updated']);
