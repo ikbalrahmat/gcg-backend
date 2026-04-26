@@ -14,6 +14,7 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
         'role',
@@ -22,6 +23,7 @@ class User extends Authenticatable
         'is_first_login',
         'failed_attempts',
         'is_locked',
+        'is_active',
         'password_changed_at', // 🆕 TAMBAHAN
     ];
 
@@ -37,6 +39,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_first_login' => 'boolean',
             'is_locked' => 'boolean',
+            'is_active' => 'boolean',
             'password_changed_at' => 'datetime', // 🆕 TAMBAHAN Biar otomatis jadi format tanggal/waktu
         ];
     }

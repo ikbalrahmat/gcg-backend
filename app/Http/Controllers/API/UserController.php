@@ -32,6 +32,7 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'username' => 'nullable|string|max:255|unique:users',
             'email' => 'required|string|email|unique:users',
             'password' => [
                 'required',
@@ -49,6 +50,7 @@ class UserController extends Controller
 
         $user = User::create([
             'name' => $request->name,
+            'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
@@ -66,6 +68,7 @@ class UserController extends Controller
 
         $rules = [
             'name' => 'required|string|max:255',
+            'username' => 'nullable|string|max:255|unique:users,username,' . $user->id,
             'email' => 'required|string|email|unique:users,email,' . $user->id,
             'role' => 'required|in:super_admin,admin_spi,auditor,auditee,manajemen',
         ];
@@ -79,6 +82,7 @@ class UserController extends Controller
         $request->validate($rules);
 
         $user->name = $request->name;
+        $user->username = $request->username;
         $user->email = $request->email;
         $user->role = $request->role;
         $user->level = $request->role === 'auditor' ? $request->level : null;
@@ -118,6 +122,25 @@ class UserController extends Controller
 
         return response()->json([
             'message' => 'Akun atas nama ' . $user->name . ' berhasil dibuka.',
+            'user' => $user
+        ]);
+    }
+
+    // 6. NONAKTIFKAN / AKTIFKAN USER MANUAL
+    public function toggleActive($id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($user->role === 'super_admin') {
+            return response()->json(['message' => 'Super Admin tidak bisa dinonaktifkan'], 403);
+        }
+
+        $user->is_active = !$user->is_active;
+        $user->save();
+
+        $statusStr = $user->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        return response()->json([
+            'message' => 'Akun atas nama ' . $user->name . ' berhasil ' . $statusStr . '.',
             'user' => $user
         ]);
     }

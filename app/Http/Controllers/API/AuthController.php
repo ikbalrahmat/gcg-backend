@@ -18,7 +18,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'login_id' => 'required',
             'password' => 'required',
             'captcha_token' => 'required'
         ]);
@@ -36,7 +36,7 @@ class AuthController extends Controller
             ], 422);
         }
 
-        $throttleKey = Str::transliterate(Str::lower($request->input('email')).'|'.$request->ip());
+        $throttleKey = Str::transliterate(Str::lower($request->input('login_id')).'|'.$request->ip());
 
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             return response()->json([
@@ -44,7 +44,7 @@ class AuthController extends Controller
             ], 429);
         }
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->login_id)->orWhere('username', $request->login_id)->first();
 
         if ($user && $user->is_locked) {
             return response()->json([
@@ -52,7 +52,13 @@ class AuthController extends Controller
             ], 403);
         }
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        if ($user && $user->is_active === false) {
+            return response()->json([
+                'message' => 'Akun Anda telah dinonaktifkan oleh Administrator. Silakan hubungi System Administrator.'
+            ], 403);
+        }
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
             RateLimiter::hit($throttleKey);
 
             if ($user) {
@@ -68,15 +74,16 @@ class AuthController extends Controller
                 'action' => 'login_gagal',
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
-                'new_values' => json_encode(['email_attempt' => $request->email])
+                'new_values' => json_encode(['login_attempt' => $request->login_id])
             ]);
 
             return response()->json([
-                'message' => 'Email atau password salah.'
+                'message' => 'Username/Email atau password salah.'
             ], 401);
         }
 
         // === JIKA LOGIN BERHASIL ===
+        Auth::login($user);
         RateLimiter::clear($throttleKey);
         $user = Auth::user();
         $user->failed_attempts = 0;

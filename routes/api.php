@@ -35,6 +35,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // ENDPOINT UNTUK BUKA GEMBOK AKUN
     Route::post('/users/{id}/unlock', [UserController::class, 'unlockAccount']);
 
+    // ENDPOINT UNTUK NONAKTIFKAN AKUN
+    Route::post('/users/{id}/toggle-active', [UserController::class, 'toggleActive']);
+
     Route::post('/change-password', [AuthController::class, 'forceChangePassword']);
 
     // Endpoint Audit Log
