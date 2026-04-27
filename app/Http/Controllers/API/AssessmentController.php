@@ -24,6 +24,7 @@ class AssessmentController extends Controller
                 'pt' => $a->pt,
                 'kt' => $a->kt,
                 'status' => $a->status,
+                'type' => $a->type ?? 'Internal',
                 'finalReportUrl' => $a->final_report_url,
                 'finalReportName' => $a->final_report_name,
                 'createdAt' => $a->created_at->toISOString(),
@@ -44,6 +45,7 @@ class AssessmentController extends Controller
             'pt' => $request->pt,
             'kt' => $request->kt,
             'status' => 'Draft',
+            'type' => $request->type ?? 'Internal',
             'created_by' => $request->user()->name,
             'data' => $request->has('data') ? $request->data : new \stdClass(),
         ]);
@@ -66,6 +68,7 @@ class AssessmentController extends Controller
             'no_st' => $request->noSt,
             'pt' => $request->pt,
             'kt' => $request->kt,
+            'type' => $request->type ?? 'Internal',
         ]);
 
         if ($request->has('members')) {
