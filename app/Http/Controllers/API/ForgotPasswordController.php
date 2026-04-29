@@ -27,10 +27,10 @@ class ForgotPasswordController extends Controller
         $token = Str::random(60);
 
         // Delete existing tokens
-        DB::table('password_resets')->where('email', $request->email)->delete();
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
         // Insert new token
-        DB::table('password_resets')->insert([
+        DB::table('password_reset_tokens')->insert([
             'email' => $request->email,
             'token' => Hash::make($token),
             'created_at' => Carbon::now()
@@ -78,7 +78,7 @@ class ForgotPasswordController extends Controller
             ]
         ]);
 
-        $resetRecord = DB::table('password_resets')->where('email', $request->email)->first();
+        $resetRecord = DB::table('password_reset_tokens')->where('email', $request->email)->first();
 
         if (!$resetRecord || !Hash::check($request->token, $resetRecord->token)) {
             return response()->json(['message' => 'Token tidak valid atau sudah kedaluwarsa.'], 400);
@@ -86,7 +86,7 @@ class ForgotPasswordController extends Controller
 
         // Check expiration (e.g. 60 mins)
         if (Carbon::parse($resetRecord->created_at)->addMinutes(60)->isPast()) {
-            DB::table('password_resets')->where('email', $request->email)->delete();
+            DB::table('password_reset_tokens')->where('email', $request->email)->delete();
             return response()->json(['message' => 'Token sudah kedaluwarsa.'], 400);
         }
 
@@ -125,8 +125,9 @@ class ForgotPasswordController extends Controller
         ]);
 
         // Delete the token
-        DB::table('password_resets')->where('email', $request->email)->delete();
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
 
         return response()->json(['message' => 'Password berhasil direset!']);
     }
 }
+
