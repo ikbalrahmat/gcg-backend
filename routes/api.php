@@ -3,13 +3,18 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\ForgotPasswordController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\AuditLogController;
 use App\Http\Controllers\API\MasterDataController;
 use App\Http\Controllers\API\AssessmentController;
 use App\Http\Controllers\API\FileMonitoringController;
 
+
 // Route Terbuka (Nggak butuh token)
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
+
 Route::post('/login', [AuthController::class, 'login']);
 
 // Route Tertutup (Wajib Login Dulu)
@@ -76,3 +81,4 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 });
+
